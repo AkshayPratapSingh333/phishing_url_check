@@ -117,11 +117,14 @@ class Formatter:
     def _write(self, text: str = "") -> None:
         encoding = getattr(self._stream, "encoding", None)
         if encoding and not text.isascii():
-            for source, replacement in self._ASCII_SEQUENCE_REPLACEMENTS:
-                text = text.replace(source, replacement)
-            text = text.translate(self._ASCII_REPLACEMENTS)
-            if not text.isascii():
-                text = text.encode("ascii", errors="replace").decode("ascii")
+            try:
+                text.encode(encoding)
+            except UnicodeEncodeError:
+                for source, replacement in self._ASCII_SEQUENCE_REPLACEMENTS:
+                    text = text.replace(source, replacement)
+                text = text.translate(self._ASCII_REPLACEMENTS)
+                if not text.isascii():
+                    text = text.encode("ascii", errors="replace").decode("ascii")
         print(text, file=self._stream)
 
     # ── Public API ────────────────────────────────────────────

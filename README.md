@@ -1,108 +1,195 @@
 # EWB Phishing URL Awareness Checker
 
-## Overview
+## Purpose
 
-Phishing is when someone disguises a link so it looks like a brand you
-already trust, hoping you will type a password or other private data.
-This tool is a small Python program that reads a URL **as text** and
-looks for six selected warning signs (and one extra encoded-`@` check).
-It never opens the page. Finding no warning signs **does not** mean the
-URL is safe.
+Phishing is a social-engineering attack in which an attacker disguises a
+link or message to make a person trust the wrong destination. The goal may
+be to steal passwords, payment details, session cookies, or other sensitive
+information.
+
+This project is a defensive learning tool. It reads URL text locally and
+highlights selected warning signs. It never opens a URL, sends a request,
+contacts a reputation service, or proves that a website is safe.
 
 ## Features
 
-- Detects an `@` symbol in the URL
-- Flags unusually long URLs (over 100 characters)
-- Flags IP-address hostnames
-- Flags many hostname segments (5 or more)
-- Flags punycode-style hostnames (`xn--`)
-- Flags the HTTP scheme
-- Detects a percent-encoded `@` (`%40`), which can hide the same userinfo trick
-- Flags HTTP only when you typed `http://` (a missing scheme is not treated as HTTP)
+- Detects an `@` symbol, including percent-encoded `%40`, which can hide the
+  real hostname behind URL user information.
+- Flags URLs longer than 100 characters.
+- Flags IPv4-address hostnames instead of named domains.
+- Flags hostnames with five or more dot-separated segments.
+- Flags the `xn--` punycode marker used for internationalised domain names.
+- Flags an explicitly typed `http://` scheme.
+- Handles empty input and malformed URL syntax without crashing.
+- Shows the inspected hostname, scheme, severity, explanation, and honest
+  limitation for each finding.
+- Supports repeated local checks with `--loop`.
+- Uses an ASCII fallback on legacy Windows terminals and preserves Unicode
+  icons on UTF-8 terminals.
+
+## Why these checks matter
+
+These are clues for human review, not a verdict. Modern phishing campaigns
+often combine several techniques:
+
+| Term | Meaning | What this checker can do |
+|---|---|---|
+| URL user information | Text before `@` can make a trusted-looking label appear before the real host. | Flags literal and encoded `@`. |
+| Look-alike or homograph domain | Similar-looking characters or internationalised names imitate a real brand. | Flags the `xn--` punycode marker. |
+| Subdomain deception | Extra labels place a familiar word deep inside an attacker-controlled hostname. | Flags five or more hostname labels. |
+| IP-based phishing | The link uses a numeric address instead of a recognisable domain. | Flags IPv4 hostnames. |
+| Link wrapping or tracking | A long redirect or tracking URL hides important details. | Flags URLs over 100 characters. |
+| Unencrypted transport | HTTP does not provide transport encryption. | Flags explicitly typed `http://`. |
+| Typosquatting | A domain uses a misspelling such as `paypa1.example`. | Not automatically detected; inspect the registered domain manually. |
+| QR-code phishing (quishing) | A QR code sends a person to a malicious URL. | The URL can be pasted here as text, but the QR image is not scanned. |
+| HTTPS abuse | A phishing site can still have a valid HTTPS certificate. | The checker deliberately does not treat HTTPS as proof of trust. |
+
+Attackers can also use redirects, URL shorteners, compromised legitimate
+websites, look-alike Unicode characters, and malicious pages with no obvious
+URL warning sign. No automated text-only result replaces checking the domain
+through a trusted channel and avoiding unexpected login requests.
 
 ## Requirements
 
-Python 3.10 or later. No extra packages.
+Python 3.10 or later. The checker itself uses only the Python standard
+library. Pytest and coverage tools are development dependencies.
 
-## How to Run
+## How to run
 
-Windows:
+From the project directory:
 
-```text
+```powershell
+# Windows
 python phishing_checker.py
-```
 
-Mac/Linux:
-
-```text
+# macOS/Linux
 python3 phishing_checker.py
 ```
 
-On Windows, if the terminal uses a legacy code page, the formatter
-automatically uses an ASCII-only version of its banner and icons so
-inspection still works when output is redirected or piped.
-
-Automated tests:
+You can inspect one URL directly:
 
 ```text
-python -m unittest tests.test_phishing_checker -v
+python phishing_checker.py "http://example.com@sample.invalid/login"
 ```
 
-## Example Output
+To inspect several URLs without restarting:
 
 ```text
-EWB Phishing URL Awareness Checker
-Text checks only - this program does not open URLs.
-Enter a sample URL to inspect: http://example.com@sample.invalid
-
-Result:
-- Inspected hostname: sample.invalid
-- Contains an @ symbol; inspect carefully.
-- Uses HTTP. HTTPS alone does not prove trust.
-
-Never enter passwords from unexpected links.
-No warning signs found never means the URL is safe.
+python phishing_checker.py --loop
 ```
+
+Type `q`, `quit`, or `exit` to leave loop mode. The program performs text
+checks only; it does not browse to the address.
+
+Useful commands:
+
+```text
+python phishing_checker.py --help
+python phishing_checker.py --list-rules
+python phishing_checker.py --version
+```
+
+On a Windows terminal that uses a legacy code page, the banner and icons
+use readable ASCII fallbacks. A UTF-8 terminal displays the shield and
+other Unicode icons.
+
+## Example
+
+```text
+python phishing_checker.py "http://example.com@sample.invalid/login"
+
+Inspected hostname: sample.invalid
+Scheme: http
+2 warning signs detected:
+[HIGH] @ Symbol Detected
+[MEDIUM] HTTP (Unencrypted) Scheme
+```
+
+The complete formatter output includes an explanation and an honest
+limitation for each finding.
 
 ## Testing
 
-Full evidence is in [tests/test_samples.md](tests/test_samples.md).
+Run the automated suite from the project root:
 
-| # | Input | Expected | Actual | Result |
-|---|-------|----------|--------|--------|
-| 1 | https://www.example.com/login | No warning signs | No listed warning signs found. This does NOT prove safety. | PASS |
-| 2 | http://example.com@sample.invalid | @ and HTTP warnings | Both warnings printed; host is sample.invalid | PASS |
-| 3 | long https://www.example.com/ URL (over 100 characters) | Long URL warning | Unusually long URL (over 100 characters). | PASS |
-| 4 | https://192.168.1.1/login | IP hostname warning | Uses an IP address instead of a familiar domain. | PASS |
-| 5 | https://a.b.c.d.e.example.invalid | Many hostname segments | Contains many hostname segments/subdomains. | PASS |
+```powershell
+python -m pytest -q
+```
+
+If a globally installed pytest plugin is incompatible with the local Python
+environment, use:
+
+```powershell
+$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1"
+python -m pytest -q
+```
+
+The legacy compatibility tests can also be run with:
+
+```powershell
+python -m unittest tests.test_phishing_checker -v
+```
+
+The five workbook samples are documented in
+[tests/test_samples.md](tests/test_samples.md):
+
+| # | Sample input | Expected result |
+|---|---|---|
+| 1 | `https://www.example.com/login` | No listed warning signs; this is not a safety guarantee. |
+| 2 | `http://192.0.2.10/account` | IP-address hostname and HTTP warnings. |
+| 3 | `http://example.com@sample.invalid/login` | `@` symbol and HTTP warnings. |
+| 4 | `https://a.b.c.d.e.example.invalid/path` | Many hostname segments warning. |
+| 5 | `https://xn--example.invalid/` | Punycode-style hostname warning. |
+
+Additional edge checks include blank input, a missing scheme, a deceptive
+HTTPS name, percent-encoded `@`, and malformed input such as
+`http://[bad`. Malformed input returns `Could not parse the URL.` rather
+than terminating the program.
+
+## Improvements
+
+1. **Encoded `@` detection**: decodes URL text before checking for hidden
+   user-information markers.
+2. **Honest HTTP handling**: only flags HTTP when the user explicitly typed
+   `http://`; the parser's internal prefix for scheme-less text is not
+   reported as user input.
+3. **Malformed-input handling**: catches parser `ValueError` exceptions and
+   returns a clear error result.
+4. **Review-friendly output**: findings have severity, explanation, matched
+   value, and an honest limitation.
+5. **Loop mode**: `--loop` checks multiple samples and exits safely on
+   `q`, `quit`, or `exit`.
+
+## Limitations and safe use
+
+This is an educational awareness checker, not an antivirus, browser
+security boundary, domain-reputation service, or URL validator. It does not
+resolve DNS, follow redirects, inspect page content, verify certificates,
+detect every typo, or determine who owns a domain. A clean result means only
+that these listed checks did not match.
+
+Use reserved documentation domains and sample strings for demonstrations.
+Never enter passwords, payment details, tokens, or private URLs into a
+shared terminal. Do not use this project to deceive people, collect
+credentials, scan websites, or test systems without permission.
 
 ## Screenshots
 
+Evidence images belong in `screenshots/` with these exact names:
+
 ![Sample run](screenshots/sample_run.png)
 ![Test results](screenshots/test_results.png)
+
+The images should show only local commands and safe sample URLs. Do not
+include passwords, private email addresses, access tokens, or unrelated
+personal tabs.
 
 ## Design documents
 
 - [Requirements](docs/REQUIREMENTS.md)
 - [System design](docs/SYSTEM_DESIGN.md)
-- [High-level design (HLD)](docs/HLD.md)
-- [Low-level design (LLD)](docs/LLD.md)
-
-## Improvements
-
-1. **Encoded `@` detection** — `%40` is decoded with `urllib.parse.unquote` so a hidden `@` still raises the same warning. Tested with `https://example.com%40sample.invalid` in unit tests.
-2. **Honest HTTP check** — HTTP is flagged only when the typed string starts with `http://`. The parse helper still adds `http://` when no scheme is present, but that helper prefix is not treated as a warning. Tested by comparing `www.example.com/login` with `http://www.example.com/login`.
-
-## Limitations
-
-This is an educational tool. It only reads URL text. It does not visit
-URLs, scan for malware or prove that a URL is safe. No warning signs
-found does NOT mean a URL is safe.
-
-## Ethical Use
-
-Use sample strings only. Do not collect credentials. Do not use this
-project to deceive anyone or to test websites without permission.
+- [High-level design](docs/HLD.md)
+- [Low-level design](docs/LLD.md)
 
 ## Author
 

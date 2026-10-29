@@ -52,6 +52,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Print a table of all registered rules and exit.",
     )
     parser.add_argument(
+        "--loop",
+        action="store_true",
+        help="Inspect multiple URLs until q, quit, or exit is entered.",
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version=f"%(prog)s {__version__}",
@@ -89,22 +94,34 @@ def main(argv: list[str] | None = None) -> int:
 
     fmt.print_banner()
 
-    # ── Get URL input ─────────────────────────────────────────
-    if args.url:
-        raw_url = args.url
+    if args.loop:
+        if args.url:
+            parser.error("--loop cannot be combined with a URL argument.")
+        while True:
+            try:
+                raw_url = input(
+                    "  Enter a URL to inspect (or q to quit): "
+                )
+            except (EOFError, KeyboardInterrupt):
+                print()
+                return 0
+            if raw_url.strip().lower() in {"q", "quit", "exit"}:
+                print("Goodbye! Stay alert online.")
+                return 0
+            result = inspect_url(raw_url)
+            fmt.print_result(result)
     else:
-        try:
-            raw_url = input("  Enter a URL to inspect: ")
-        except (EOFError, KeyboardInterrupt):
-            print()
-            return 0
-
-    # ── Inspect & display ─────────────────────────────────────
-    result = inspect_url(raw_url)
-    fmt.print_result(result)
-
-    # Return non-zero if warnings were found (useful for scripting)
-    return 1 if result.has_warnings else 0
+        if args.url:
+            raw_url = args.url
+        else:
+            try:
+                raw_url = input("  Enter a URL to inspect: ")
+            except (EOFError, KeyboardInterrupt):
+                print()
+                return 0
+        result = inspect_url(raw_url)
+        fmt.print_result(result)
+        return 1 if result.has_warnings else 0
 
 
 if __name__ == "__main__":

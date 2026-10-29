@@ -28,6 +28,7 @@ python -m pytest tests/ -v
 python phishing_checker.py
 python phishing_checker.py "http://example.com@evil.invalid"
 python phishing_checker.py --list-rules
+python phishing_checker.py --loop
 ```
 
 ## Test Evidence Table
@@ -39,6 +40,24 @@ python phishing_checker.py --list-rules
 | 3 | `http://example.com@sample.invalid/login` | Flags @ symbol and HTTP. | Contains an @ symbol; inspect carefully.<br>Uses HTTP. HTTPS alone does not prove trust. |
 | 4 | `https://a.b.c.d.e.example.invalid/path` | Flags many hostname segments. | Contains many hostname segments/subdomains. |
 | 5 | `https://xn--example.invalid/` | Flags punycode-style hostname. | Contains a punycode-style hostname. |
+
+## Optional improvement checks
+
+| Try typing | What happens | What it teaches |
+|---|---|---|
+| *(just press Enter)* | `No URL entered.` | The program handles empty input. |
+| `www.example.com` | No HTTP warning is reported because no scheme was typed. | Missing scheme is added internally for parsing, not treated as proof that the URL uses HTTP. |
+| `https://secure-login.example.invalid` | No listed warning signs may be found. | A convincing name can still be unsafe; no signs does not mean safe. |
+| `http://[bad` | `Could not parse the URL.` | Malformed input is handled without crashing. |
+| `q` in `--loop` mode | `Goodbye! Stay alert online.` | Several local samples can be checked without restarting. |
+
+## Modern-attack reminder
+
+This checker is intentionally text-only. It can highlight URL user
+information, IP hosts, deep subdomains, punycode, long links, and HTTP, but
+it does not detect every typosquat, redirect, shortened URL, compromised
+legitimate site, malicious QR code, or HTTPS phishing page. Always verify an
+unexpected request through a trusted channel.
 
 ## Warning Sign Reference
 
