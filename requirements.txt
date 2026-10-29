@@ -1,0 +1,14 @@
+# ── Core Dependencies (standard library only for core) ──────
+# No external packages required for the core checker.
+# The standard library modules re, urllib.parse, dataclasses,
+# enum, abc, argparse, typing are all built-in.
+
+# ── Development & Testing Dependencies ──────────────────────
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# ── Optional: Code Quality Tools ────────────────────────────
+# Uncomment to enable linting and formatting:
+# ruff>=0.1.0
+# mypy>=1.7.0
+# black>=23.0.0
