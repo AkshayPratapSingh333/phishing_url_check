@@ -49,7 +49,7 @@ python phishing_checker.py --loop
 | `www.example.com` | No HTTP warning is reported because no scheme was typed. | Missing scheme is added internally for parsing, not treated as proof that the URL uses HTTP. |
 | `https://secure-login.example.invalid` | No listed warning signs may be found. | A convincing name can still be unsafe; no signs does not mean safe. |
 | `http://[bad` | `Could not parse the URL.` | Malformed input is handled without crashing. |
-| `q` in `--loop` mode | `Goodbye! Stay alert online.` | Several local samples can be checked without restarting. |
+| Type `q` in `--loop` mode | The program prints `Goodbye! Stay alert online.` and exits. | Several local samples can be checked without restarting. |
 
 ## Modern-attack reminder
 
