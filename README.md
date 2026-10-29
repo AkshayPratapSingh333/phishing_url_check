@@ -173,17 +173,6 @@ Never enter passwords, payment details, tokens, or private URLs into a
 shared terminal. Do not use this project to deceive people, collect
 credentials, scan websites, or test systems without permission.
 
-## Screenshots
-
-Evidence images belong in `screenshots/` with these exact names:
-
-![Sample run](screenshots/sample_run.png)
-![Test results](screenshots/test_results.png)
-
-The images should show only local commands and safe sample URLs. Do not
-include passwords, private email addresses, access tokens, or unrelated
-personal tabs.
-
 ## Design documents
 
 - [Requirements](docs/REQUIREMENTS.md)
