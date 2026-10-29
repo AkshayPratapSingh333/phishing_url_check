@@ -1,4 +1,4 @@
-# Requirements — Phishing URL Awareness Checker v2.0
+# Requirements — Phishing URL Awareness Checker
 
 ## 1. Purpose
 

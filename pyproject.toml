@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phishing-url-awareness-checker"
-version = "2.0.0"
+version = "1.0.0"
 description = "Educational tool that reads URL text for phishing warning signs."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-    {name = "Student Project", email = "student@ewb-courses.example"},
+    {name = "Akshay Pratap Singh"},
 ]
 keywords = ["phishing", "url", "awareness", "cybersecurity", "education"]
 classifiers = [

@@ -23,5 +23,5 @@ Architecture:
     └── cli.py          — Entry-point for terminal interaction
 """
 
-__version__ = "2.0.0"
-__author__ = "Student Project — EWB Courses"
+__version__ = "1.0.0"
+__author__ = "Akshay Pratap Singh"

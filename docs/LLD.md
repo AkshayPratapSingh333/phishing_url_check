@@ -1,10 +1,10 @@
-# Low-Level Design (LLD) — Phishing URL Awareness Checker v2.0
+# Low-Level Design (LLD) — Phishing URL Awareness Checker
 
 ## 1. Package & Module Layout
 
 ```
 src/
-├── __init__.py          # __version__ = "2.0.0"
+├── __init__.py          # Package metadata and author information
 ├── models.py            # Severity, Finding, InspectionResult
 ├── parser.py            # ParsedURL, parse_url()
 ├── inspector.py         # inspect_url(), inspect_url_simple()

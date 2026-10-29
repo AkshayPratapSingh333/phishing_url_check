@@ -1,4 +1,4 @@
-# Test Samples — EWB Phishing URL Awareness Checker (v2.0)
+# Test Samples — EWB Phishing URL Awareness Checker
 
 These checks use **sample strings only**. The program never visits the
 addresses. "No listed warning signs" does **not** mean a URL is safe.

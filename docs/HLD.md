@@ -1,4 +1,4 @@
-# High-Level Design (HLD) — Phishing URL Awareness Checker v2.0
+# High-Level Design (HLD) — Phishing URL Awareness Checker
 
 ## 1. System Context
 

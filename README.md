@@ -106,5 +106,5 @@ project to deceive anyone or to test websites without permission.
 
 ## Author
 
-Student project, EWB Courses — Cybersecurity Mini Project Workbook
+Akshay Pratap Singh — Cybersecurity Mini Project Workbook
 (Phishing URL Awareness Checker).

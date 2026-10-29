@@ -1,4 +1,4 @@
-# System Design — Phishing URL Awareness Checker v2.0
+# System Design — Phishing URL Awareness Checker
 
 ## Problem Statement
 
